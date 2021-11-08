@@ -14,9 +14,8 @@ class AcGamePlayground {
         this.game_map = new GameMap(this);
 
         // 创建玩家
-        this.players = [];  // 创建玩家数组
-        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.05,"white", this.height * 0.3, true));  // 创建自己
-        
+        this.players = [];
+        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.05, "white", this.height * 0.15, true));
 
         this.start();
     }
