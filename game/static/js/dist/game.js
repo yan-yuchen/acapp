@@ -54,13 +54,132 @@ class AcGameMenu {
 }
 
 
+let AC_GAME_OBJECTS = [];
+
+class AcGameObject {
+    constructor() {
+        AC_GAME_OBJECTS.push(this);
+
+        this.has_called_start = false;  // 是否执行过start函数
+        this.timedelta = 0;  // 当前帧距离上一帧的时间间隔
+    }
+
+    start() {  // 只会在第一帧执行一次
+    }
+
+    update() {  // 每一帧均会执行一次
+    }
+
+    on_destroy() {  // 在被销毁前执行一次
+    }
+
+    destroy() {  // 删掉该物体
+        this.on_destroy();
+
+        for (let i = 0; i < AC_GAME_OBJECTS.length; i ++ ) {
+            if (AC_GAME_OBJECTS[i] === this) {
+                AC_GAME_OBJECTS.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+let last_timestamp;   //上一帧的时间
+let AC_GAME_ANIMATION = function(timestamp) {  //传入的参数是时间
+    for (let i = 0; i < AC_GAME_OBJECTS.length; i ++ ) {
+        let obj = AC_GAME_OBJECTS[i];
+        if (!obj.has_called_start) { //如果没有执行过第一帧，就执行start函数
+            obj.start();
+            obj.has_called_start = true;
+        } else {                    //如果执行过第一帧
+            obj.timedelta = timestamp - last_timestamp; //计算时间间隔，所有物件都是按时间移动的，按帧来移动可能会因为浏览器不同而造成最终移动速度不同
+            obj.update();
+        }
+    }
+    last_timestamp = timestamp;
+
+    requestAnimationFrame(AC_GAME_ANIMATION); //递归调用
+}
+
+
+requestAnimationFrame(AC_GAME_ANIMATION); //告诉浏览器，希望执行一个动画，并要求浏览器在下次重绘之前使用指定的回调函数更新动画
+class GameMap extends AcGameObject {
+    constructor(playground) {
+        super();
+        this.playground = playground;
+        this.$canvas = $(`<canvas></canvas>`);  //使用canvas
+        this.ctx = this.$canvas[0].getContext('2d');
+        this.ctx.canvas.width = this.playground.width;
+        this.ctx.canvas.height = this.playground.height;
+        this.playground.$playground.append(this.$canvas);
+    }
+
+    start() {
+    }
+
+    update() {
+        this.render();
+    }
+    
+    //渲染函数
+    render() {
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+}
+
+class Player extends AcGameObject {
+    constructor(playground, x, y, radius, color, speed, is_me) {
+        super();
+        this.playground = playground;
+        this.ctx = this.playground.game_map.ctx;
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.speed = speed;
+        this.is_me = is_me;
+        this.eps = 0.1;
+
+    }
+
+    start(){
+    }
+
+    update(){
+        this.render();
+    }
+
+    render() {     //渲染函数
+        this.ctx.beginPath();
+        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+    }
+}
+
+
+
 class AcGamePlayground {
     constructor(root) {
         this.root = root;
-        this.$playground = $(`<div>游戏界面</div>`);
+        this.$playground = $(`<div class="ac-game-playground"></div>`);
 
-        this.hide();
+        //this.hide();
         this.root.$ac_game.append(this.$playground);
+
+        //canvas settings
+        this.width = this.$playground.width();
+        this.height = this.$playground.height();
+
+        // 创建地图(canvas)
+        this.game_map = new GameMap(this);
+
+        // 创建玩家
+        this.players = [];  // 创建玩家数组
+        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.05,"white", this.height * 0.3, true));  // 创建自己
+        
 
         this.start();
     }
@@ -78,7 +197,7 @@ class AcGamePlayground {
 }
 
 
-class AcGame {
+export class AcGame {
     constructor(id) {
         this.id = id;
         this.$ac_game = $('#' + id);

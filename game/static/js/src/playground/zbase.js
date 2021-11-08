@@ -1,10 +1,22 @@
 class AcGamePlayground {
     constructor(root) {
         this.root = root;
-        this.$playground = $(`<div>游戏界面</div>`);
+        this.$playground = $(`<div class="ac-game-playground"></div>`);
 
-        this.hide();
+        //this.hide();
         this.root.$ac_game.append(this.$playground);
+
+        //canvas settings
+        this.width = this.$playground.width();
+        this.height = this.$playground.height();
+
+        // 创建地图(canvas)
+        this.game_map = new GameMap(this);
+
+        // 创建玩家
+        this.players = [];  // 创建玩家数组
+        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.05,"white", this.height * 0.3, true));  // 创建自己
+        
 
         this.start();
     }
