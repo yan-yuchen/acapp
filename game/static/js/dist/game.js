@@ -148,11 +148,11 @@ class Player extends AcGameObject {
     }
 
     start(){
-        
+
         if (this.is_me) {
             this.add_listening_events();
         }
-        
+
     }
 
     add_listening_events() {
@@ -167,8 +167,35 @@ class Player extends AcGameObject {
             if (e.which === 3) {  // 1. 鼠标左键  2. 鼠标滚轮  3. 鼠标右键
                 outer.move_to(e.clientX, e.clientY);
             }
+            else if (e.which === 1) {
+                if (outer.cur_skill === "fireball") {
+                    outer.shoot_fireball(e.clientX, e.clientY);
+                }
+
+                outer.cur_skill = null;
+            }
         });
+
+        $(window).keydown(function(e) {
+            if (e.which === 81) {  // q
+                outer.cur_skill = "fireball";
+                return false;
+            }
+        });
+
     }
+
+    shoot_fireball(tx, ty) {
+        let x = this.x, y = this.y;
+        let radius = this.playground.height * 0.01;
+        let angle = Math.atan2(ty - this.y, tx - this.x);
+        let vx = Math.cos(angle), vy = Math.sin(angle);
+        let color = "orange";
+        let speed = this.playground.height * 0.5;
+        let move_length = this.playground.height * 1;
+        new FireBall(this.playground, this, x, y, radius, vx, vy, color, speed, move_length, this.playground.height * 0.01);
+    }
+
 
     // 计算欧几里得距离，求出当前点到目标点的模长
     get_dist(x1, y1, x2, y2) {
@@ -186,7 +213,7 @@ class Player extends AcGameObject {
     }
 
     update(){
-        
+
         if (this.move_length < this.eps) {
             this.move_length = 0;
             this.vx = this.vy = 0;
@@ -199,7 +226,7 @@ class Player extends AcGameObject {
             this.y += this.vy * moved;
             this.move_length -= moved;
         }
-        
+
 
         this.render();
     }
@@ -214,6 +241,48 @@ class Player extends AcGameObject {
 
 
 
+class FireBall extends AcGameObject {
+    constructor(playground, player, x, y, radius, vx, vy, color, speed, move_length, damage) {
+        super();
+        this.playground = playground;
+        this.player = player;
+        this.ctx = this.playground.game_map.ctx;
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.radius = radius;
+        this.color = color;
+        this.speed = speed;
+        this.move_length = move_length;
+        this.damage = damage;
+        this.eps = 0.1;
+    }
+
+    start() {
+    }
+
+    update() {
+        if (this.move_length < this.eps) { //移动距离减为0，即达到射程
+            this.destroy();
+            return false;
+        }
+
+        let moved = Math.min(this.move_length, this.speed * this.timedelta / 1000);
+        this.x += this.vx * moved;
+        this.y += this.vy * moved;
+        this.move_length -= moved;
+
+        this.render();  //渲染函数
+    }
+
+    render() {
+        this.ctx.beginPath();
+        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+    }
+}
 class AcGamePlayground {
     constructor(root) {
         this.root = root;
