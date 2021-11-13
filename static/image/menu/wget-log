@@ -1,0 +1,11 @@
+--2021-11-03 18:55:55--  https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Fe%2F56f0f48b8714b.jpg%3Fdown
+Resolving gimg2.baidu.com (gimg2.baidu.com)... 101.72.199.36, 111.206.76.36, 2408:871a:6810:3::ddc2:b624, ...
+Connecting to gimg2.baidu.com (gimg2.baidu.com)|101.72.199.36|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 659566 (644K) [image/jpeg]
+Saving to: 'background.jpg'
+
+background.jpg         0%[                     ]       0  --.-KB/s               background.jpg       100%[====================>] 644.11K  --.-KB/s    in 0.05s   
+
+2021-11-03 18:55:55 (13.4 MB/s) - 'background.jpg' saved [659566/659566]
+
