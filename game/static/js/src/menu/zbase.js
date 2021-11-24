@@ -4,18 +4,18 @@ class AcGameMenu {
         this.$menu = $(`
 <div class="ac-game-menu">
     <div class="ac-game-menu-field">
-    <div class="ac-game-menu-field-item ac-game-menu-field-item-single-mode">
-        单人模式
+        <div class="ac-game-menu-field-item ac-game-menu-field-item-single-mode">
+            单人模式
+        </div>
+        <br>
+        <div class="ac-game-menu-field-item ac-game-menu-field-item-multi-mode">
+            多人模式
+        </div>
+        <br>
+        <div class="ac-game-menu-field-item ac-game-menu-field-item-settings">
+            退出
+        </div>
     </div>
-    <br>
-    <div class="ac-game-menu-field-item ac-game-menu-field-item-multi-mode">
-        多人模式
-    </div>
-    <br>
-    <div class="ac-game-menu-field-item ac-game-menu-field-item-settings">
-         设置
-    </div>
- </div>
 </div>
 `);
         this.$menu.hide();
@@ -24,16 +24,16 @@ class AcGameMenu {
         this.$multi_mode = this.$menu.find('.ac-game-menu-field-item-multi-mode');
         this.$settings = this.$menu.find('.ac-game-menu-field-item-settings');
 
-        this.start();     //在构造函数中调用start函数
+        this.start();
     }
 
-    start() {            //定义start函数
+    start() {
         this.add_listening_events();
     }
 
-    add_listening_events() {    //监听函数
+    add_listening_events() {
         let outer = this;
-        this.$single_mode.click(function(){  //当被点击时调用
+        this.$single_mode.click(function(){
             outer.hide();
             outer.root.playground.show();
         });
@@ -42,6 +42,7 @@ class AcGameMenu {
         });
         this.$settings.click(function(){
             console.log("click settings");
+            outer.root.settings.logout_on_remote(); //
         });
     }
 
@@ -53,5 +54,3 @@ class AcGameMenu {
         this.$menu.hide();
     }
 }
-
-
