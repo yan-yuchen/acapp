@@ -13,7 +13,7 @@ class FireBall extends AcGameObject {
         this.speed = speed;
         this.move_length = move_length;
         this.damage = damage;
-        this.eps = 0.1;
+        this.eps = 0.01;
     }
 
     start() {
@@ -60,10 +60,10 @@ class FireBall extends AcGameObject {
     }
 
     render() {
+        let scale = this.playground.scale;
         this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
     }
 }
-
