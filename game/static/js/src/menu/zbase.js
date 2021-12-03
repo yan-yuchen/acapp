@@ -35,14 +35,14 @@ class AcGameMenu {
         let outer = this;
         this.$single_mode.click(function(){
             outer.hide();
-            outer.root.playground.show();
+            outer.root.playground.show("single mode");
         });
         this.$multi_mode.click(function(){
-            console.log("click multi mode");
+            outer.hide();
+            outer.root.playground.show("multi mode");
         });
         this.$settings.click(function(){
-            console.log("click settings");
-            outer.root.settings.logout_on_remote(); //
+            outer.root.settings.logout_on_remote();
         });
     }
 
