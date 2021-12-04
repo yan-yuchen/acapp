@@ -62,6 +62,16 @@ class AcGameObject {
 
         this.has_called_start = false;  // 是否执行过start函数
         this.timedelta = 0;  // 当前帧距离上一帧的时间间隔
+        this.uuid = this.create_uuid();
+    }
+
+    create_uuid() {
+        let res = "";
+        for (let i = 0; i < 8; i ++ ) {
+            let x = parseInt(Math.floor(Math.random() * 10));  // 返回[0, 1)之间的数
+            res += x;
+        }
+        return res;
     }
 
     start() {  // 只会在第一帧执行一次
@@ -85,25 +95,26 @@ class AcGameObject {
     }
 }
 
-let last_timestamp;   //上一帧的时间
-let AC_GAME_ANIMATION = function(timestamp) {  //传入的参数是时间
+let last_timestamp;
+let AC_GAME_ANIMATION = function(timestamp) {
     for (let i = 0; i < AC_GAME_OBJECTS.length; i ++ ) {
         let obj = AC_GAME_OBJECTS[i];
-        if (!obj.has_called_start) { //如果没有执行过第一帧，就执行start函数
+        if (!obj.has_called_start) {
             obj.start();
             obj.has_called_start = true;
-        } else {                    //如果执行过第一帧
-            obj.timedelta = timestamp - last_timestamp; //计算时间间隔，所有物件都是按时间移动的，按帧来移动可能会因为浏览器不同而造成最终移动速度不同
+        } else {
+            obj.timedelta = timestamp - last_timestamp;
             obj.update();
         }
     }
     last_timestamp = timestamp;
 
-    requestAnimationFrame(AC_GAME_ANIMATION); //递归调用
+    requestAnimationFrame(AC_GAME_ANIMATION);
 }
 
 
-requestAnimationFrame(AC_GAME_ANIMATION); //告诉浏览器，希望执行一个动画，并要求浏览器在下次重绘之前使用指定的回调函数更新动画
+requestAnimationFrame(AC_GAME_ANIMATION);
+
 class GameMap extends AcGameObject {
     constructor(playground) {
         super();
@@ -357,7 +368,6 @@ class Player extends AcGameObject {
         }
     }
 }
-
 class FireBall extends AcGameObject {
     constructor(playground, player, x, y, radius, vx, vy, color, speed, move_length, damage) {
         super();
@@ -425,6 +435,61 @@ class FireBall extends AcGameObject {
         this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
+    }
+}
+class MultiPlayerSocket {
+    constructor(playground) {
+        this.playground = playground;
+
+        this.ws = new WebSocket("wss://app273.acapp.acwing.com.cn/wss/multiplayer/");
+
+        this.start();
+    }
+
+    start() {
+        this.receive();
+    }
+
+    receive () {
+        let outer = this;
+
+        this.ws.onmessage = function(e) {
+            let data = JSON.parse(e.data);
+            let uuid = data.uuid;
+            if (uuid === outer.uuid) return false;
+
+            let event = data.event;
+            if (event === "create_player") {
+                outer.receive_create_player(uuid, data.username, data.photo);
+            }
+        };
+    }
+
+    send_create_player(username, photo) {
+        let outer = this;
+        this.ws.send(JSON.stringify({
+            'event': "create_player",
+            'uuid': outer.uuid,
+            'username': username,
+            'photo': photo,
+        }));
+    }
+
+    receive_create_player(uuid, username, photo) {
+        let player = new Player(
+            this.playground,
+            this.playground.width / 2 / this.playground.scale,
+            0.5,
+            0.05,
+            "white",
+            0.15,
+            "enemy",
+            username,
+            photo,
+        );
+
+        player.uuid = uuid;
+        this.playground.players.push(player);
     }
 }
 class AcGamePlayground {

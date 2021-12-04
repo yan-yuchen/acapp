@@ -178,4 +178,3 @@ class Player extends AcGameObject {
         }
     }
 }
-
